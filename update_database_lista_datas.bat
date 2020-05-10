@@ -1,0 +1,2 @@
+python.exe update_database_lista_datas.py
+PAUSE

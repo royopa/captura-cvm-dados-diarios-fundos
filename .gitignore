@@ -1,0 +1,13 @@
+debug.log
+/.env
+/var/
+/downloads/
+/downloads/*
+/files/*
+/bases/*
+__pycache__/
+git-pull.bat
+postgres-data/*
+postgres-data/
+.ipynb_checkpoints/
+saida.csv
