@@ -119,16 +119,16 @@ def main():
     importa_df_links(df_links, 'fundos_cvm_info_diaria_links', engine)
 
     # conexão com banco de dados
-    #conn = get_conn_sirat()
+    conn = get_conn_sirat()
     # registra o log
     user = os.environ.get("USERNAME", platform.node())
 
-    #log_registrado = registra_log(conn, 'captura_dados_diarios_fundos_cvm', user)
+    log_registrado = registra_log(conn, 'captura_dados_diarios_fundos_cvm', user)
 
-    #if log_registrado:
-        #print('LOG registrado com sucesso')
-        #update_database.main()
-        #cvm_analise_informacoes_cadastro_fundos.main()
+    if log_registrado:
+        print('LOG registrado com sucesso')
+        update_database.main()
+        cvm_analise_informacoes_cadastro_fundos.main()
 
 
 if __name__ == '__main__':

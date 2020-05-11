@@ -24,25 +24,11 @@ def delete_registros_antigos(engine, nome_tabela, dt_min):
     return True
 
 
-def importa_df_datas(df, nome_tabela_datas, engine):
-    df_datas = df['DT_REF'].unique()
-    df_datas = pd.DataFrame(df_datas)
-    df_datas.to_sql(
-        nome_tabela_datas,
-        engine,
-        if_exists='replace',
-        index=False,
-        chunksize=10000
-    )
-    print(f'{len(df_datas)} registros importados com sucesso')
-    return True
-
-
 def importa_df_dados(df, nome_tabela, engine):
     df.to_sql(
         nome_tabela,
         engine,
-        if_exists='replace',
+        if_exists='append',
         index_label='pk_fundos_cvm_info_diaria',
         index=False,
         chunksize=100000
@@ -74,8 +60,7 @@ def main():
     # engine de conexão com o banco de dados
     print('Criando conexão com o banco de dados')
     engine = create_engine(
-        'postgresql+psycopg2://test:test@localhost:5406/test',
-        #os.environ.get('SQLALCHEMY_DATABASE_URI'),
+        os.environ.get('SQLALCHEMY_DATABASE_URI'),
         connect_args={'connect_timeout': 9999999}
     )
 
@@ -105,7 +90,9 @@ def main():
     print('Depois de remover os duplicados', len(df))
 
     # cria uma nova coluna com o percentual de resgate para o dia
-    df['PC_RESG'] = (df['RESG_DIA'] / df.groupby(['CO_PRD'])['VL_PATRIM_LIQ'].shift(1))
+    df['PC_RESG'] = (
+        df['RESG_DIA'] / df.groupby(['CO_PRD'])['VL_PATRIM_LIQ'].shift(1)
+    )
 
     # remove registros em que não se conseguiu calcular o PC_RESG
     df = df.dropna(subset=['PC_RESG'])
@@ -114,29 +101,24 @@ def main():
     print('Data máxima do arquivo baixado', df['DT_REF'].max().date())
 
     nome_tabela = 'fundos_cvm_info_diaria'
-    nome_tabela_datas = 'fundos_cvm_info_diaria_datas'
 
     print('Limpa registros antigos da tabela que serão substituídos')
     dt_min = df['DT_REF'].min().date()
     delete_registros_antigos(engine, nome_tabela, dt_min)
-    delete_registros_antigos(engine, nome_tabela_datas, dt_min)
-
-    print(f'Importando as datas para a tabela {nome_tabela_datas}')
-    importa_df_datas(df, nome_tabela_datas, engine)
-
-    return
 
     print(f'Importando registros para a tabela {nome_tabela}')
-    importa_df_dados(df, nome_tabela_datas, engine)
-    
+    importa_df_dados(df, nome_tabela, engine)
+
     # conexão com banco de dados
-    # conn = get_conn_sirat()
+    conn = get_conn_sirat()
     # registra o log
     user = os.environ.get("USERNAME", platform.node())
-    #log_registrado = registra_log(conn, 'atualiza_database_dados_diarios_fundos_cvm', user)
+    log_registrado = registra_log(
+        conn, 'atualiza_database_dados_diarios_fundos_cvm', user
+    )
 
-    #if log_registrado:
-        #print('LOG registrado com sucesso')
+    if log_registrado:
+        print('LOG registrado com sucesso')
 
 
 if __name__ == '__main__':
