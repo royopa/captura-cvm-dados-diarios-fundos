@@ -2,28 +2,53 @@ version: '3'
 
 services:
   api:
+    container_name: app_cvm_container
     build: .
     depends_on:
-      - db
+      - postgres
+      - sql-server
     environment:
       STAGE: test
       SQLALCHEMY_DATABASE_URI: postgresql+psycopg2://test:test@db/test
+      database_host: localhost,1433
+      database_name: AdventureWorksDW2017
+      database_user: sa
+      database_password: Alaska2017
     networks:
       - default
     volumes:
       - .:/usr/src/app
     restart: always
 
-  db:
+  postgres:
+    container_name: postgres_container
     environment:
       POSTGRES_USER: test
       POSTGRES_PASSWORD: test
       POSTGRES_DB: test
     image: postgres:latest
-    networks:
-      - default
     ports:
       - 5406:5432
-    restart: always
+    networks:
+      - default
     volumes:
       - ./postgres-data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  sql-server:
+    container_name: sqlserver_container
+    build:
+      context: ./docker/db-sql-server/
+      dockerfile: Dockerfile
+    ports:
+      - "1433:1433"
+    environment:
+      SA_PASSWORD: "Alaska2017"
+      ACCEPT_EULA: "Y"
+    healthcheck:
+      test: sqlcmd -S db1.internal.prod.example.com -U SA -P 'Alaska2017' -Q 'select distinct 1 from AdventureWorksDW2017.dbo.DimDate'
+    networks:
+      - default
+    volumes:
+      - ./mssql-server-linux-data:/var/opt/mssql/data
+    restart: unless-stopped      

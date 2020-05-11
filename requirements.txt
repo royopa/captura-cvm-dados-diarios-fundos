@@ -1,7 +1,10 @@
 Cython
 SQLAlchemy
-pandas==0.25.1
 dask
 beautifulsoup4
 python_dateutil
 python-dotenv
+NumPy
+python-dateutil
+pytz
+pandas

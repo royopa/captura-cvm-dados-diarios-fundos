@@ -11,3 +11,5 @@ postgres-data/*
 postgres-data/
 .ipynb_checkpoints/
 saida.csv
+mssql-server-linux-data/
+mssql-server-linux-data/*
