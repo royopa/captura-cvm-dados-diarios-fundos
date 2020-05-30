@@ -17,8 +17,8 @@ services:
     networks:
       - default
     volumes:
-      - .:/usr/src/app
-    restart: always
+      - .:/code
+    restart: "no"
 
   postgres:
     container_name: postgres_container
@@ -33,7 +33,7 @@ services:
       - default
     volumes:
       - ./postgres-data:/var/lib/postgresql/data
-    restart: unless-stopped
+    restart: "no"
 
   sql-server:
     container_name: sqlserver_container
@@ -51,4 +51,4 @@ services:
       - default
     volumes:
       - ./mssql-server-linux-data:/var/opt/mssql/data
-    restart: unless-stopped      
+    restart: "no"
